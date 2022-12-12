@@ -1,0 +1,42 @@
+
+### projeto-boletins ###
+
+projeto-boletins/HELP.md
+projeto-boletins/target/
+projeto-boletins/!.mvn/wrapper/maven-wrapper.jar
+projeto-boletins/!**/src/main/**/target/
+projeto-boletins/!**/src/test/**/target/
+projeto-boletins/.env
+
+### STS ###
+projeto-boletins/.apt_generated
+projeto-boletins/.classpath
+projeto-boletins/.factorypath
+projeto-boletins/.project
+projeto-boletins/.settings
+projeto-boletins/.springBeans
+projeto-boletins/.sts4-cache
+
+### IntelliJ IDEA ###
+projeto-boletins/.idea
+projeto-boletins/*.iws
+projeto-boletins/*.iml
+projeto-boletins/*.ipr
+
+### NetBeans ###
+projeto-boletins/nbproject/private/
+projeto-boletins/nbbuild/
+projeto-boletins/dist/
+projeto-boletins/nbdist/
+projeto-boletins/.nb-gradle/
+projeto-boletins/build/
+projeto-boletins/!**/src/main/**/build/
+projeto-boletins/!**/src/test/**/build/
+
+### VS Code ###
+projeto-boletins/.vscode/
+
+### project ###
+
+project/db-data/
+project/.env
