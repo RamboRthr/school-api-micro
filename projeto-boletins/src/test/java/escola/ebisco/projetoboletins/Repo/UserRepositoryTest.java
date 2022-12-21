@@ -44,7 +44,7 @@ public class UserRepositoryTest {
         var encoded = encoder.encode("senhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         user.setPassword(encoded);
         user.setUsername("user");
-        user.setEmail("email");
+        user.setEmail("escola/ebisco/projetoboletins/Domain/email");
         user.setRoles(Set.of(new Role(ERole.ROLE_STUDENT)));
 
         userRepository.save(user);

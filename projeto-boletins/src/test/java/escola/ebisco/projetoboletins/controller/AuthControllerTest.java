@@ -6,6 +6,7 @@ import escola.ebisco.projetoboletins.Repo.RoleRepository;
 import escola.ebisco.projetoboletins.Repo.UserRepository;
 import escola.ebisco.projetoboletins.payload.request.LoginRequest;
 import escola.ebisco.projetoboletins.payload.request.SignupRequest;
+import escola.ebisco.projetoboletins.security.Services.EmailService;
 import escola.ebisco.projetoboletins.security.Services.UserDetailsImpl;
 import escola.ebisco.projetoboletins.security.jwt.JwtUtils;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ public class AuthControllerTest {
     RoleRepository roleRepository;
 
     @Mock
+    EmailService emailService;
+
+    @Mock
     PasswordEncoder encoder;
 
     @Mock
@@ -69,7 +73,7 @@ public class AuthControllerTest {
         var responseBadRequest = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         doReturn(true).when(userRepository).existsByEmail(Mockito.anyString());
         var request = new SignupRequest();
-        request.setEmail("email");
+        request.setEmail("escola/ebisco/projetoboletins/Domain/email");
 
         var res = authController.registerUser(request);
 
@@ -96,8 +100,11 @@ public class AuthControllerTest {
     void signupSuccess(){
         var request = new SignupRequest();
         request.setRole(Set.of("student", "prof", "admin"));
+        request.setEmail("mock@gmail.com");
 
         when(roleRepository.findByName(any())).thenReturn(Optional.of(new Role()));
+
+
 
         var res = authController.registerUser(request);
 
@@ -117,7 +124,7 @@ public class AuthControllerTest {
         authentication.setAuthenticated(true);
         var user = new User(
                 "username",
-                "email",
+                "escola/ebisco/projetoboletins/Domain/email",
                 "12345678"
         );
         user.setId(1L);

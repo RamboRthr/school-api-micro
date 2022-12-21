@@ -1,5 +1,21 @@
 version: '3'
 services:
+  postgres:
+    image: 'postgres:14.0'
+    ports:
+        - '5433:5432'
+    restart: always
+    deploy: 
+      mode: replicated
+      replicas: 1
+    environment:
+        POSTGRES_DB: postgres
+    env_file:
+        - .env
+  
+    volumes:
+        - ./db-data/postgres/:/var/lib/postgresql/data/
+
   school-api:
     build: 
       context: ./../projeto-boletins
@@ -8,7 +24,7 @@ services:
     ports:
       - '8080:8080'
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - APP_JWTEXPIRATIONMS = 8640000
     env_file:
@@ -17,19 +33,9 @@ services:
       mode: replicated
       replicas: 1
   
-  postgres:
-    image: 'postgres:14.0'
-    ports:
-        - '5433:5432'
-    restart: always
-    deploy: 
-        mode: replicated
-        replicas: 1
-    environment:
-        POSTGRES_DB: postgres
-    env_file:
-        - .env
-  
-    volumes:
-        - ./db-data/postgres/:/var/lib/postgresql/data/
-  
+  mailhog:
+      image: mailhog/mailhog
+      container_name: 'mailhog'
+      ports:
+        - '1025:1025'
+        - '8025:8025'

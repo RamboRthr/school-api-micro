@@ -1,8 +1,6 @@
 package escola.ebisco.projetoboletins;
 
 
-import escola.ebisco.projetoboletins.Domain.ERole;
-import escola.ebisco.projetoboletins.Domain.Role;
 import escola.ebisco.projetoboletins.Repo.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

@@ -3,12 +3,15 @@ package escola.ebisco.projetoboletins.controller;
 import escola.ebisco.projetoboletins.Domain.ERole;
 import escola.ebisco.projetoboletins.Domain.Role;
 import escola.ebisco.projetoboletins.Domain.User;
+import escola.ebisco.projetoboletins.Domain.email.EmailData;
 import escola.ebisco.projetoboletins.Repo.RoleRepository;
 import escola.ebisco.projetoboletins.Repo.UserRepository;
 import escola.ebisco.projetoboletins.payload.request.LoginRequest;
 import escola.ebisco.projetoboletins.payload.request.SignupRequest;
+import escola.ebisco.projetoboletins.payload.response.EmailSendResponse;
 import escola.ebisco.projetoboletins.payload.response.JwtResponse;
 import escola.ebisco.projetoboletins.payload.response.MessageResponse;
+import escola.ebisco.projetoboletins.security.Services.EmailService;
 import escola.ebisco.projetoboletins.security.Services.UserDetailsImpl;
 import escola.ebisco.projetoboletins.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -44,6 +50,9 @@ public class AuthController {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    EmailService emailService;
 
     @RequestMapping(value = "/signin", method = RequestMethod.POST)
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -118,6 +127,21 @@ public class AuthController {
         user.setRoles(roles);
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        //EmailSendRequest request = new EmailSendRequest(user.getEmail(), "school@eb-isco.com",
+        //        "Registration confirmed");
+        try {
+            emailService.sendEmail("school@eb-isco.com", EmailData.from(
+                    signUpRequest
+            ));
+
+        } catch (Exception exc) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(EmailSendResponse.builder()
+                    .success(false)
+                    .message(String.format("Failed to send email due to %s", exc.getMessage()))
+                    .build());
+        }
+
+        return ResponseEntity.ok(new MessageResponse("User registered successfully! Check out your e-mail box."));
     }
+
 }
