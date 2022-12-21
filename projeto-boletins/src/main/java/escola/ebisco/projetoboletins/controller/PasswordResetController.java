@@ -52,11 +52,9 @@ public class PasswordResetController {
 
             DigitalSignature digitalSignature = new DigitalSignature();
 
+            var privateKeyBytes = (byte[]) redisTemplate.opsForValue().get("privateKey");
 
-            var privateKeyHash = (String) redisTemplate.opsForValue().get("privateKey");
-
-
-            String resetKey = digitalSignature.createDigitalSignature(emailBase64, privateKeyHash);
+            String resetKey = digitalSignature.createDigitalSignature(emailBase64, privateKeyBytes);
 
             request.setResetKey(resetKey);
 
@@ -82,7 +80,7 @@ public class PasswordResetController {
         if (userRepository.existsByEmail(request.getEmail())){
             String emailBase64 = encodeEmail(request.getEmail());
             DigitalSignature digitalSignature = new DigitalSignature();
-            String publicKeyHash = redisTemplate.opsForValue().get("publicKey").toString();
+            var publicKeyHash = (byte[]) redisTemplate.opsForValue().get("publicKey");
 
             if (digitalSignature.verifySignature(emailBase64, publicKeyHash,signedKey)){
                 var updatedUser = userRepository.findByEmail(request.getEmail()).get();

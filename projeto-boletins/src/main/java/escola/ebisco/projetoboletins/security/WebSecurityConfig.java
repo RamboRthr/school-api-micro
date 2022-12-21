@@ -23,12 +23,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -64,11 +66,18 @@ public class WebSecurityConfig {
     private RedisTemplate<String, Object> redisTemplate;
 
     @EventListener(ApplicationReadyEvent.class)
-    public void setKeys() {
-        redisTemplate.opsForValue().set("privateKey", "MIICXgIBAAKBgQDC0+vVgZ2aCb1HOgSIoUbBy1vlUtCfZRrqs8izwmFq7QbT6XfZn4Mkk6ojyTq6pcWIsucpzhLHwwYPTG/q9XbZUUFw3S/O03SiFKT0fv4nvx3W4D3pups95rSXR2meEbgcIV/Btp2h15N91T9Iwt5WvHr8jV7SMwGcMa3o2y4HnQIDAQABAoGAD+wZ3f0V0DzzhxqqvC/SBIyGGhvGiQBOTtgakvZT19U/NZpi/RoYMakPwpTzg8WAe0eDtNrulfzORfnNO7qL19oOdMkb83Zgnq2Isl8qWFkXirRfVCGJ4hm0L5W5Vby+weUCNlH3y+DBtu7tcxpGkQ8Eq2SLCI+yHL9V3CKkTAECQQD8/uwpAU1AduK6upsdElv+FDybSkcXtXYQnrVEGTGX0SAFlFPsm/S16OogtndazWhkWZxZtsi+JduVtn8TZF/BAkEAxSQsx0PkTorLGha1ipwYEJOmUXkPYWpKb+HResMpdg4NU53EY23M15nEbWT4Ch0B9ff2zK58CdtZTH/BUf7e3QJBAPEbHQODGxU5d6BPIG5XRdZhgNTZt+DvbaIvLj7E589wXF0U29pdUpxeaWpdmmet5DPmdqvFF5CnUZpfPsHDYcECQQCc8z/zJMoO/dDU5F+ECuHd0K8JDiiAle7NRCtSYS4RHv7dIy3HOxNqUrFfppMS+iUlflSuf/ugnVFq5gszDIbBAkEAhwxx/Ra7znThJGLxpShxW90UV4xwqWwCoa2eAruWHTn0Uk6OkUid5VwnEuwQfq54CjnI8hIhA/nJqDTQUqNblg==");
-        redisTemplate.opsForValue().set("publicKey", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDC0+vVgZ2aCb1HOgSIoUbBy1vlUtCfZRrqs8izwmFq7QbT6XfZn4Mkk6ojyTq6pcWIsucpzhLHwwYPTG/q9XbZUUFw3S/O03SiFKT0fv4nvx3W4D3pups95rSXR2meEbgcIV/Btp2h15N91T9Iwt5WvHr8jV7SMwGcMa3o2y4HnQIDAQAB");
-    }
+    private void setKeyFromEnv() throws IOException {
 
+        var privateKeyBytes = Files.readAllBytes(Paths.get(".private"));
+        redisTemplate.opsForValue().set("privateKey", privateKeyBytes);
+        System.out.println(privateKeyBytes.length);
+
+        var publicKeyBytes = Files.readAllBytes(Paths.get(".public"));
+        redisTemplate.opsForValue().set("publicKey", publicKeyBytes);
+        System.out.println(publicKeyBytes.length);
+
+
+    }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {

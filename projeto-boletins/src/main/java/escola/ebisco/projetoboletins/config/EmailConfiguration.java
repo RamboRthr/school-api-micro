@@ -29,9 +29,6 @@ public class EmailConfiguration {
         javaMailSender.setHost(host);
         javaMailSender.setPort(port);
 
-        System.out.println("ola marilene");
-        System.out.println(host + port);
-
         Properties properties = new Properties();
         properties.put("mail.transport.protocol", "smtp");
 
