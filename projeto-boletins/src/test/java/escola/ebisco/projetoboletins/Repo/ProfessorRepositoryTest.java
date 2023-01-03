@@ -1,6 +1,5 @@
 package escola.ebisco.projetoboletins.Repo;
 
-import escola.ebisco.projetoboletins.Domain.Classroom;
 import escola.ebisco.projetoboletins.Domain.Professor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -48,15 +48,14 @@ public class PasswordResetController {
 
         if (userRepository.existsByEmail(request.getEmail())) {
 
-            String emailBase64 = encodeEmail(request.getEmail());
+            var emailBytes = getBytesFromEmail(request.getEmail());
 
             DigitalSignature digitalSignature = new DigitalSignature();
 
+            System.out.println(redisTemplate.opsForValue().get("privateKey").toString());
+            var privateKeyBase64 = Base64.getDecoder().decode(redisTemplate.opsForValue().get("privateKey").toString());
 
-            var privateKeyHash = (String) redisTemplate.opsForValue().get("privateKey");
-
-
-            String resetKey = digitalSignature.createDigitalSignature(emailBase64, privateKeyHash);
+            String resetKey = digitalSignature.createDigitalSignature(emailBytes, privateKeyBase64);
 
             request.setResetKey(resetKey);
 
@@ -75,16 +74,18 @@ public class PasswordResetController {
         else {
             return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
         }
-
     }
-    @RequestMapping(value = "/reset", method = RequestMethod.POST)
-    public ResponseEntity resetPassword(@RequestParam("key") String signedKey, @RequestBody ResetPasswordRequest request) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, SignatureException, InvalidKeyException {
-        if (userRepository.existsByEmail(request.getEmail())){
-            String emailBase64 = encodeEmail(request.getEmail());
-            DigitalSignature digitalSignature = new DigitalSignature();
-            String publicKeyHash = redisTemplate.opsForValue().get("publicKey").toString();
 
-            if (digitalSignature.verifySignature(emailBase64, publicKeyHash,signedKey)){
+    @RequestMapping(value = "/reset", method = RequestMethod.POST)
+    public ResponseEntity resetPassword(@RequestBody ResetPasswordRequest request) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+        if (userRepository.existsByEmail(request.getEmail())){
+            var emailBytes = getBytesFromEmail(request.getEmail());
+
+            DigitalSignature digitalSignature = new DigitalSignature();
+
+            var publicKeyBytes = Base64.getDecoder().decode(redisTemplate.opsForValue().get("publicKey").toString());
+
+            if (digitalSignature.verifySignature(emailBytes, publicKeyBytes,request.getSignedKey())){
                 var updatedUser = userRepository.findByEmail(request.getEmail()).get();
                 updatedUser.setPassword(encoder.encode(request.getNewPassword()));
                 userRepository.save(updatedUser);
@@ -100,15 +101,13 @@ public class PasswordResetController {
         }
     }
 
-    private String encodeEmail(String email){
+    private byte[] getBytesFromEmail(String email){
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        var digestedEmail = messageDigest.digest(email.getBytes());
-
-        return Base64.getEncoder().encodeToString(digestedEmail);
+        return messageDigest.digest(email.getBytes());
     }
 }

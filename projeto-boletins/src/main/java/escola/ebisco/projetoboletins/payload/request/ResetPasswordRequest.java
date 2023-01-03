@@ -12,6 +12,10 @@ public class ResetPasswordRequest {
 
     private String newPassword;
 
+    private String signedKey;
+
+
+
     public String getEmail() {
         return email;
     }
@@ -26,5 +30,13 @@ public class ResetPasswordRequest {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
+    }
+
+    public String getSignedKey() {
+        return signedKey;
+    }
+
+    public void setSignedKey(String signedKey) {
+        this.signedKey = signedKey;
     }
 }

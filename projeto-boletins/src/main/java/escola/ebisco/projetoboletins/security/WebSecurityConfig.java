@@ -7,6 +7,7 @@ import escola.ebisco.projetoboletins.security.Services.UserDetailsServiceImpl;
 import escola.ebisco.projetoboletins.security.jwt.AuthEntryPointJwt;
 import escola.ebisco.projetoboletins.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +24,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Base64;
 
 @Configuration
 @EnableWebSecurity
@@ -60,15 +64,40 @@ public class WebSecurityConfig {
         }
     }
 
+    @Value("${app.privateKey}")
+    private String privateKey;
+    @Value("${app.publicKey}")
+    private String publicKey;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void setKeys() {
-        redisTemplate.opsForValue().set("privateKey", "MIICXgIBAAKBgQDC0+vVgZ2aCb1HOgSIoUbBy1vlUtCfZRrqs8izwmFq7QbT6XfZn4Mkk6ojyTq6pcWIsucpzhLHwwYPTG/q9XbZUUFw3S/O03SiFKT0fv4nvx3W4D3pups95rSXR2meEbgcIV/Btp2h15N91T9Iwt5WvHr8jV7SMwGcMa3o2y4HnQIDAQABAoGAD+wZ3f0V0DzzhxqqvC/SBIyGGhvGiQBOTtgakvZT19U/NZpi/RoYMakPwpTzg8WAe0eDtNrulfzORfnNO7qL19oOdMkb83Zgnq2Isl8qWFkXirRfVCGJ4hm0L5W5Vby+weUCNlH3y+DBtu7tcxpGkQ8Eq2SLCI+yHL9V3CKkTAECQQD8/uwpAU1AduK6upsdElv+FDybSkcXtXYQnrVEGTGX0SAFlFPsm/S16OogtndazWhkWZxZtsi+JduVtn8TZF/BAkEAxSQsx0PkTorLGha1ipwYEJOmUXkPYWpKb+HResMpdg4NU53EY23M15nEbWT4Ch0B9ff2zK58CdtZTH/BUf7e3QJBAPEbHQODGxU5d6BPIG5XRdZhgNTZt+DvbaIvLj7E589wXF0U29pdUpxeaWpdmmet5DPmdqvFF5CnUZpfPsHDYcECQQCc8z/zJMoO/dDU5F+ECuHd0K8JDiiAle7NRCtSYS4RHv7dIy3HOxNqUrFfppMS+iUlflSuf/ugnVFq5gszDIbBAkEAhwxx/Ra7znThJGLxpShxW90UV4xwqWwCoa2eAruWHTn0Uk6OkUid5VwnEuwQfq54CjnI8hIhA/nJqDTQUqNblg==");
-        redisTemplate.opsForValue().set("publicKey", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDC0+vVgZ2aCb1HOgSIoUbBy1vlUtCfZRrqs8izwmFq7QbT6XfZn4Mkk6ojyTq6pcWIsucpzhLHwwYPTG/q9XbZUUFw3S/O03SiFKT0fv4nvx3W4D3pups95rSXR2meEbgcIV/Btp2h15N91T9Iwt5WvHr8jV7SMwGcMa3o2y4HnQIDAQAB");
-    }
+    /*@EventListener(ApplicationReadyEvent.class)
+        private void generateKeys() throws NoSuchAlgorithmException, IOException {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048);
+            KeyPair keyPair = keyGen.generateKeyPair();
 
+            String priv;
+            try (FileWriter writer = new FileWriter("private.pem")) {
+                priv = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
+                writer.write(priv);
+            }
+            String pub;
+            try (FileWriter writer = new FileWriter("public.pem")) {
+                pub = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
+                writer.write(pub);
+            }
+        }*/
+
+    @EventListener(ApplicationReadyEvent.class)
+    private void setKeyFromEnv() throws IOException {
+
+        //privateKey = Files.readString(Paths.get("private.pem"));
+        //publicKey = Files.readString(Paths.get("public.pem"));
+
+        redisTemplate.opsForValue().set("privateKey", privateKey);
+        redisTemplate.opsForValue().set("publicKey", publicKey);
+    }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -79,8 +108,6 @@ public class WebSecurityConfig {
 
         return authProvider;
     }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {

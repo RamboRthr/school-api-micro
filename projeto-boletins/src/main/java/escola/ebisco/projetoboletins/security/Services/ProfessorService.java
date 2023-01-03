@@ -15,7 +15,6 @@ import java.util.List;
 @RequestMapping("/professor")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class ProfessorService {
-
     @Autowired
     ProfessorRepository professorRepository;
     @Autowired
