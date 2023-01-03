@@ -7,8 +7,8 @@ projeto-boletins/!.mvn/wrapper/maven-wrapper.jar
 projeto-boletins/!**/src/main/**/target/
 projeto-boletins/!**/src/test/**/target/
 projeto-boletins/.env
-projeto-boletins/.private
-projeto-boletins/.public
+projeto-boletins/private.pem
+projeto-boletins/public.pem
 
 ### STS ###
 projeto-boletins/.apt_generated

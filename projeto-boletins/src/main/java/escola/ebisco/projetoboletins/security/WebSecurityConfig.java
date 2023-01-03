@@ -7,6 +7,7 @@ import escola.ebisco.projetoboletins.security.Services.UserDetailsServiceImpl;
 import escola.ebisco.projetoboletins.security.jwt.AuthEntryPointJwt;
 import escola.ebisco.projetoboletins.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 
 @Configuration
 @EnableWebSecurity
@@ -62,21 +64,39 @@ public class WebSecurityConfig {
         }
     }
 
+    @Value("${app.privateKey}")
+    private String privateKey;
+    @Value("${app.publicKey}")
+    private String publicKey;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    /*@EventListener(ApplicationReadyEvent.class)
+        private void generateKeys() throws NoSuchAlgorithmException, IOException {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048);
+            KeyPair keyPair = keyGen.generateKeyPair();
+
+            String priv;
+            try (FileWriter writer = new FileWriter("private.pem")) {
+                priv = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
+                writer.write(priv);
+            }
+            String pub;
+            try (FileWriter writer = new FileWriter("public.pem")) {
+                pub = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
+                writer.write(pub);
+            }
+        }*/
 
     @EventListener(ApplicationReadyEvent.class)
     private void setKeyFromEnv() throws IOException {
 
-        var privateKeyBytes = Files.readAllBytes(Paths.get(".private"));
-        redisTemplate.opsForValue().set("privateKey", privateKeyBytes);
-        System.out.println(privateKeyBytes.length);
+        //privateKey = Files.readString(Paths.get("private.pem"));
+        //publicKey = Files.readString(Paths.get("public.pem"));
 
-        var publicKeyBytes = Files.readAllBytes(Paths.get(".public"));
-        redisTemplate.opsForValue().set("publicKey", publicKeyBytes);
-        System.out.println(publicKeyBytes.length);
-
-
+        redisTemplate.opsForValue().set("privateKey", privateKey);
+        redisTemplate.opsForValue().set("publicKey", publicKey);
     }
 
     @Bean
@@ -88,8 +108,6 @@ public class WebSecurityConfig {
 
         return authProvider;
     }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {

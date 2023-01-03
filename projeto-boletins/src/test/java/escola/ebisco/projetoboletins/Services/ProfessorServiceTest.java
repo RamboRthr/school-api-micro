@@ -1,6 +1,5 @@
 package escola.ebisco.projetoboletins.Services;
 
-import escola.ebisco.projetoboletins.Domain.Classroom;
 import escola.ebisco.projetoboletins.Domain.Professor;
 import escola.ebisco.projetoboletins.Repo.ProfessorRepository;
 import escola.ebisco.projetoboletins.security.Services.ProfessorService;

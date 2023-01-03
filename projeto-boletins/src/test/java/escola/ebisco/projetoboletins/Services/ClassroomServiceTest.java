@@ -6,7 +6,6 @@ import escola.ebisco.projetoboletins.Domain.Student;
 import escola.ebisco.projetoboletins.Repo.ClassroomRepository;
 import escola.ebisco.projetoboletins.Repo.ProfessorRepository;
 import escola.ebisco.projetoboletins.security.Services.ClassroomService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,15 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
