@@ -26,20 +26,71 @@ services:
     env_file:
       - .env
 
-  school-api:
-    build: 
-      context: ./../projeto-boletins
-      dockerfile: ./../projeto-boletins/Dockerfile
+  gateway:
+    build:
+      context: ./../api-gateway
+      dockerfile: ./../api-gateway/Dockerfile
     restart: always
-    ports:
+    ports: 
       - '8080:8080'
+    deploy:
+      mode: replicated
+      replicas: 1
+  
+  crud-service:
+    build: 
+      context: ./../crud
+      dockerfile: ./../crud/Dockerfile
+    restart: always
+    ports: 
+      - 8081:8081
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - APP_JWTEXPIRATIONMS = 8640000
     env_file:
-        - .env
-    deploy:
+      - .env
+    deploy: 
+      mode: replicated
+      replicas: 1
+
+  auth:
+    build: 
+      context: ./../auth
+      dockerfile: ./../auth/Dockerfile
+    restart: always
+    ports: 
+      - 8082:8082
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    env_file:
+      - .env
+    deploy: 
+      mode: replicated
+      replicas: 1
+  
+  reset-password:
+    build:
+      context: ./../reset-password
+      dockerfile: ./../auth/Dockerfile
+    restart: always
+    ports: 
+      - 8083:8083
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    env_file:
+      - .env
+    deploy: 
+      mode: replicated
+      replicas: 1
+
+  mail:
+    build:
+      context: ./../mail
+      dockerfile: ./../mail/Dockerfile
+    restart: always
+    deploy: 
       mode: replicated
       replicas: 1
   
@@ -49,3 +100,14 @@ services:
       ports:
         - '1025:1025'
         - '8025:8025'
+
+  rabbit:
+    image: 'rabbitmq:3-management'
+    ports:
+          - '5672:5672'
+          - '15672:15672'
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq:
