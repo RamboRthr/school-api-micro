@@ -1,18 +1,16 @@
-package escola.ebisco.projetoboletins.security;
+package com.service.auth.Security;
 
-import escola.ebisco.projetoboletins.Domain.ERole;
-import escola.ebisco.projetoboletins.Domain.Role;
-import escola.ebisco.projetoboletins.Repo.RoleRepository;
-import escola.ebisco.projetoboletins.security.Services.UserDetailsServiceImpl;
-import escola.ebisco.projetoboletins.security.jwt.AuthEntryPointJwt;
-import escola.ebisco.projetoboletins.security.jwt.AuthTokenFilter;
+import com.service.auth.Domain.ERole;
+import com.service.auth.Domain.Role;
+import com.service.auth.Repo.RoleRepository;
+import com.service.auth.Security.Services.UserDetailsServiceImpl;
+import com.service.auth.Security.jwt.AuthEntryPointJwt;
+import com.service.auth.Security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -25,14 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Base64;
 
 @Configuration
 @EnableWebSecurity
@@ -64,40 +54,6 @@ public class WebSecurityConfig {
         }
     }
 
-    /*@EventListener(ApplicationReadyEvent.class)
-        private void generateKeys() throws NoSuchAlgorithmException, IOException {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-            keyGen.initialize(2048);
-            KeyPair keyPair = keyGen.generateKeyPair();
-
-            String priv;
-            try (FileWriter writer = new FileWriter("private.pem")) {
-                priv = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
-                writer.write(priv);
-            }
-            String pub;
-            try (FileWriter writer = new FileWriter("public.pem")) {
-                pub = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
-                writer.write(pub);
-            }
-        }*/
-    @Value("${app.privateKey}")
-    private String privateKey;
-    @Value("${app.publicKey}")
-    private String publicKey;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void setKeyFromEnv() throws IOException {
-
-        //privateKey = Files.readString(Paths.get("private.pem"));
-        //publicKey = Files.readString(Paths.get("public.pem"));
-
-        redisTemplate.opsForValue().set("privateKey", privateKey);
-        redisTemplate.opsForValue().set("publicKey", publicKey);
-    }
-
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -116,7 +72,6 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
